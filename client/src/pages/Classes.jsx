@@ -2,120 +2,111 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-function Students() {
-  const [students, setStudents] = useState([]);
+function Classes() {
+  const [classes, setClasses] = useState([]);
 
   const [formData, setFormData] = useState({
-    name: "",
-    rollNo: "",
+    className: "",
+    courseCode: "",
+    instructor: "",
     department: "",
     semester: "",
-    email: "",
   });
 
   const [editingId, setEditingId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  const fetchStudents = async () => {
+  const fetchClasses = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/students", {
+      const res = await axios.get("http://localhost:5000/api/classes", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      console.log("Student Updated");
-      console.log("Students API Response:", res.data);
+      console.log(res.data);
 
-      setStudents(res.data);
+      setClasses(res.data);
     } catch (error) {
       console.log(error);
-      toast.error("Failed to load students");
+      toast.error("Failed to load classes");
     }
   };
 
-  const addStudent = async (e) => {
+  const addClass = async (e) => {
     e.preventDefault();
 
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post("http://localhost:5000/api/students", formData, {
+      await axios.post("http://localhost:5000/api/classes", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      toast.success("Student Added Successfully");
+      toast.success("Class Added Successfully");
 
       setFormData({
-        name: "",
-        rollNo: "",
+        className: "",
+        courseCode: "",
+        instructor: "",
         department: "",
         semester: "",
-        email: "",
       });
 
-      fetchStudents();
+      fetchClasses();
     } catch (error) {
       console.log(error);
 
-      if (error.response) {
-        toast.error(error.response.data.message);
-      } else {
-        toast.error("Something went wrong");
-      }
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
-  const deleteStudent = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this student?",
-    );
-
-    if (!confirmDelete) return;
+  const deleteClass = async (id) => {
+    if (!window.confirm("Delete this class?")) return;
 
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(`http://localhost:5000/api/students/${id}`, {
+      await axios.delete(`http://localhost:5000/api/classes/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      toast.success("Student Deleted Successfully");
-
-      fetchStudents();
+      toast.success("Class Deleted Successfully");
+      fetchClasses();
     } catch (error) {
       console.log(error);
-      toast.error("Failed to delete student");
+
+      toast.error("Delete Failed");
     }
   };
 
-  const editStudent = (student) => {
+  const editClass = (cls) => {
     setFormData({
-      name: student.name,
-      rollNo: student.rollNo,
-      department: student.department,
-      semester: student.semester,
-      email: student.email,
+      className: cls.className,
+      courseCode: cls.courseCode,
+      instructor: cls.instructor,
+      department: cls.department,
+      semester: cls.semester,
     });
 
-    setEditingId(student._id);
+    setEditingId(cls._id);
     setIsEditing(true);
   };
 
-  const updateStudent = async (e) => {
+  const updateClass = async (e) => {
     e.preventDefault();
 
     try {
       const token = localStorage.getItem("token");
 
       await axios.put(
-        `http://localhost:5000/api/students/${editingId}`,
+        `http://localhost:5000/api/classes/${editingId}`,
         formData,
         {
           headers: {
@@ -124,50 +115,49 @@ function Students() {
         },
       );
 
-      console.log("Editing ID:", editingId);
-      console.log("Form Data:", formData);
-
-      toast.success("Student Updated Successfully");
-
+      toast.success("Class Updated Successfully");
       setFormData({
-        name: "",
-        rollNo: "",
+        className: "",
+        courseCode: "",
+        instructor: "",
         department: "",
         semester: "",
-        email: "",
       });
 
-      setIsEditing(false);
       setEditingId(null);
+      setIsEditing(false);
 
-      fetchStudents();
+      fetchClasses();
     } catch (error) {
       console.log(error);
-      toast.error("Failed to update student");
+
+      toast.error("Update Failed");
     }
   };
 
   useEffect(() => {
-    fetchStudents();
+    fetchClasses();
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-3xl font-bold mb-6 text-blue-700">Students</h1>
+      <h1 className="text-3xl font-bold mb-6 text-blue-700">
+        Classes Management
+      </h1>
 
       <form
-        onSubmit={isEditing ? updateStudent : addStudent}
+        onSubmit={isEditing ? updateClass : addClass}
         className="bg-white shadow rounded p-6 mb-8"
       >
         <div className="grid grid-cols-2 gap-4">
           <input
             type="text"
-            placeholder="Name"
-            value={formData.name}
+            placeholder="Class Name"
+            value={formData.className}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                name: e.target.value,
+                className: e.target.value,
               })
             }
             className="border p-2 rounded"
@@ -176,12 +166,26 @@ function Students() {
 
           <input
             type="text"
-            placeholder="Roll No"
-            value={formData.rollNo}
+            placeholder="Course Code"
+            value={formData.courseCode}
             onChange={(e) =>
               setFormData({
                 ...formData,
-                rollNo: e.target.value,
+                courseCode: e.target.value,
+              })
+            }
+            className="border p-2 rounded"
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="Instructor"
+            value={formData.instructor}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                instructor: e.target.value,
               })
             }
             className="border p-2 rounded"
@@ -212,20 +216,6 @@ function Students() {
                 semester: e.target.value,
               })
             }
-            className="border p-2 rounded"
-            required
-          />
-
-          <input
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                email: e.target.value,
-              })
-            }
             className="border p-2 rounded col-span-2"
             required
           />
@@ -235,40 +225,41 @@ function Students() {
           type="submit"
           className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
         >
-          {isEditing ? "Update Student" : "Add Student"}
+          {isEditing ? "Update Class" : "Add Class"}
         </button>
       </form>
 
       <table className="w-full bg-white shadow rounded">
         <thead className="bg-blue-600 text-white">
           <tr>
-            <th className="p-3">Name</th>
-            <th className="p-3">Roll No</th>
+            <th className="p-3">Class</th>
+            <th className="p-3">Course Code</th>
+            <th className="p-3">Instructor</th>
             <th className="p-3">Department</th>
             <th className="p-3">Semester</th>
-            <th className="p-3">Email</th>
             <th className="p-3">Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {students.map((student) => (
-            <tr key={student._id} className="border-b text-center">
-              <td className="p-3">{student.name}</td>
-              <td>{student.rollNo}</td>
-              <td>{student.department}</td>
-              <td>{student.semester}</td>
-              <td>{student.email}</td>
+          {classes.map((cls) => (
+            <tr key={cls._id} className="border-b text-center">
+              <td className="p-3">{cls.className}</td>
+              <td>{cls.courseCode}</td>
+              <td>{cls.instructor}</td>
+              <td>{cls.department}</td>
+              <td>{cls.semester}</td>
 
               <td className="p-3">
                 <button
-                  onClick={() => editStudent(student)}
+                  onClick={() => editClass(cls)}
                   className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
                 >
                   Edit
                 </button>
+
                 <button
-                  onClick={() => deleteStudent(student._id)}
+                  onClick={() => deleteClass(cls._id)}
                   className="bg-red-600 text-white px-3 py-1 rounded"
                 >
                   Delete
@@ -282,4 +273,4 @@ function Students() {
   );
 }
 
-export default Students;
+export default Classes;

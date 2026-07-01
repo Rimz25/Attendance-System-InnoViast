@@ -8,6 +8,18 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
 
+    classId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Class",
+      required: true,
+    },
+
+    sessionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Session",
+      required: true,
+    },
+
     date: {
       type: Date,
       required: true,
@@ -15,12 +27,22 @@ const attendanceSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Present", "Absent"],
+      enum: ["Present", "Absent", "Late"],
       required: true,
     },
   },
   {
     timestamps: true,
+  },
+);
+
+attendanceSchema.index(
+  {
+    student: 1,
+    sessionId: 1,
+  },
+  {
+    unique: true,
   },
 );
 

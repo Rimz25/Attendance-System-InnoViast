@@ -1,25 +1,30 @@
+// Mark Attendance
 const Attendance = require("../models/Attendance");
 
-// Mark Attendance
 const markAttendance = async (req, res) => {
   try {
-    const { student, date, status } = req.body;
-
-    // Check if attendance already exists for same student & date
+    const { student, classId, sessionId, date, status } = req.body;
+    console.log("Request Body:", req.body);
     const existingAttendance = await Attendance.findOne({
       student,
-      date,
+      classId,
+      sessionId,
     });
 
     if (existingAttendance) {
-      return res.status(400).json({
-        message: "Attendance already marked for this date",
+      existingAttendance.status = status;
+      await existingAttendance.save();
+
+      return res.status(200).json({
+        message: "Attendance Updated Successfully",
+        attendance: existingAttendance,
       });
     }
 
-    // Save Attendance
     const attendance = await Attendance.create({
       student,
+      classId,
+      sessionId,
       date,
       status,
     });
@@ -29,6 +34,8 @@ const markAttendance = async (req, res) => {
       attendance,
     });
   } catch (error) {
+    console.error("Attendance Error:", error);
+
     res.status(500).json({
       message: error.message,
     });
@@ -38,7 +45,47 @@ const markAttendance = async (req, res) => {
 // Get All Attendance
 const getAttendance = async (req, res) => {
   try {
-    const attendance = await Attendance.find().populate("student");
+    const attendance = await Attendance.find()
+      .populate("student")
+      .populate("classId")
+      .populate("sessionId");
+
+    res.status(200).json(attendance);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// Report with Filters
+const getAttendanceReport = async (req, res) => {
+  try {
+    const { classId, sessionId, status, date } = req.query;
+
+    let filter = {};
+
+    if (classId) filter.classId = classId;
+    if (sessionId) filter.sessionId = sessionId;
+    if (status) filter.status = status;
+
+    if (date) {
+      const start = new Date(date);
+      const end = new Date(date);
+
+      end.setHours(23, 59, 59, 999);
+
+      filter.date = {
+        $gte: start,
+        $lte: end,
+      };
+    }
+
+    const attendance = await Attendance.find(filter)
+      .populate("student")
+      .populate("classId")
+      .populate("sessionId")
+      .sort({ date: -1 });
 
     res.status(200).json(attendance);
   } catch (error) {
@@ -51,4 +98,5 @@ const getAttendance = async (req, res) => {
 module.exports = {
   markAttendance,
   getAttendance,
+  getAttendanceReport,
 };

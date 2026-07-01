@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 function Login() {
   const navigate = useNavigate();
@@ -15,14 +17,20 @@ function Login() {
         password,
       });
 
+      console.log(res.data);
+
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      alert("Login Successful");
+      toast.success("Login Successful");
 
       navigate("/dashboard");
     } catch (error) {
-      alert(error.response?.data?.message || "Login Failed");
+      console.log("Full Error:", error);
+      console.log("Response:", error.response);
+      console.log("Data:", error.response?.data);
+
+      toast.error(error.response?.data?.message || "Login Failed");
     }
   };
 
@@ -59,5 +67,12 @@ function Login() {
     </div>
   );
 }
+
+<p className="text-center mt-5">
+  Don't have an account?{" "}
+  <Link to="/register" className="text-blue-600 font-semibold">
+    Register
+  </Link>
+</p>;
 
 export default Login;
