@@ -63,16 +63,19 @@ function Login() {
         >
           Login
         </button>
+
+        <p className="text-center mt-5 text-gray-600">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="text-blue-600 font-semibold hover:underline"
+          >
+            Register
+          </Link>
+        </p>
       </div>
     </div>
   );
 }
-
-<p className="text-center mt-5">
-  Don't have an account?{" "}
-  <Link to="/register" className="text-blue-600 font-semibold">
-    Register
-  </Link>
-</p>;
 
 export default Login;

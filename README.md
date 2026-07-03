@@ -143,7 +143,13 @@ Attendance-System-InnoViast
 │
 └── README.md
 
-````
+# Database Schema
+
+The following Entity Relationship Diagram (ERD) represents the database structure used in the Attendance Management System.
+
+<p align="center">
+  <img src="screenshots/database-schema.png" width="90%">
+</p>
 
 # Database Collections
 
@@ -154,7 +160,6 @@ Attendance-System-InnoViast
 - Password
 - Role
 
-
 ## Students
 
 - Name
@@ -163,19 +168,16 @@ Attendance-System-InnoViast
 - Semester
 - Email
 
-
 ## Classes
 
 - Class Name
 - Subject
 - Instructor
 
-
 ## Sessions
 
 - Session Date
 - Class
-
 
 ## Attendance
 
@@ -185,14 +187,13 @@ Attendance-System-InnoViast
 - Status
 - Date
 
-
 # Installation
 
 ## Clone Repository
 
 ```bash
 git clone https://github.com/Rimz25/Attendance-System-InnoViast.git
-````
+```
 
 ## Backend
 
